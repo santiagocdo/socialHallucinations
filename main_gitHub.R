@@ -26,7 +26,7 @@ library(dplyr)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 remove_invalid <- 1
-print_figure <- 0
+print_figure <- 1
 
 
 # # # # read behaviour # # # # 
@@ -163,7 +163,7 @@ questsExps <- questsExps[questsExps$PROLIFIC_PID != "63222a1daf1fe6dcbc59b29a",]
 
 
 # # # # add questionnaires to behaviour # # # #
-scores <- c("rgpts_refe","rgpts_pers","rgpts_para","bpe","caps_total",
+scores <- c("demo_sex","rgpts_refe","rgpts_pers","rgpts_para","bpe","caps_total",
             "caps_distress","caps_distracting","caps_hardly")
 expsQuests <- addQuestionnaires(to=exps,from=quests,scores)
 
@@ -181,16 +181,22 @@ expsQuests <- addQuestionnaires(to=exps,from=quests,scores)
 # pHigh <- "#F29199"; pLow <- "#1F5B73"
 # tHigh <- "#F2921D"; tLow <- "#8EA676";
 
-fig2 <- plotFigure2PNAS(quest1exp1,quest2exp2,
-                        questsExps,exp1Quest1,
-                        exp2Quest2,expsQuests)
+fig2 <- plotFigure2(quest1exp1,quest2exp2,
+                    questsExps,exp1Quest1,
+                    exp2Quest2,expsQuests)
 
-# # # # Brian Scholl's lab meeting # # # #
+figS3 <- plotFigureS3(quest1exp1,quest2exp2,
+                    questsExps,exp1Quest1,
+                    exp2Quest2,expsQuests)
+
+
 
 # print figures
 if (print_figure == 1) {
-  ggsave("figures/figure2_PNAS.pdf", fig2, dpi = 2400, scale = 1.1, units = "cm",
+  ggsave("figures/figure2.pdf", fig2, dpi = 2400, scale = 1.1, units = "cm",
          width = 20, height = 20, bg = "white")
+  ggsave("figures/figureS3.pdf", figS3, dpi = 2400, scale = 1.1, units = "cm",
+         width = 12, height = 20, bg = "white")
 }
 
 
@@ -291,48 +297,48 @@ ggplot(allQuest, aes(x=scale(rgpts_pers),y=scale(bpe))) +
 # # # # # # # # # # Stats: Figure 2 # # # # # # # # # # # # # # # # # # # # ####
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-mod_dec_Fig2C_sheep <- glmer(correct ~ condition * paranoia + (condition|experiment/workerId),
+mod_dec_Fig2C_sheep <- glmer(correct ~ condition * paranoia + (condition|experiment/subjectId),
                              family=binomial, data=expsQuests[expsQuests$task == "sheep",])
 # tab_mod_dec_Fig2C_sheep <- modelEstimates(mod_dec_Fig2C_sheep)
 tab_mod_dec_Fig2C_sheep <- report::report_table(mod_dec_Fig2C_sheep)
 
-mod_dec_Fig2C_wolf <- glmer(correct ~ condition * paranoia + (condition|experiment/workerId),
+mod_dec_Fig2C_wolf <- glmer(correct ~ condition * paranoia + (condition|experiment/subjectId),
                             family=binomial, data=expsQuests[expsQuests$task == "wolf",])
 # tab_mod_dec_Fig2C_wolf <- modelEstimates(mod_dec_Fig2C_wolf)
 tab_mod_dec_Fig2C_wolf <- report::report_table(mod_dec_Fig2C_wolf)
 
 
 
-mod_dec_Fig2D_sheep <- glmer(correct ~ condition * bpe + (condition|experiment/workerId),
+mod_dec_Fig2D_sheep <- glmer(correct ~ condition * bpe + (condition|experiment/subjectId),
                              family=binomial, data=expsQuests[expsQuests$task == "sheep",])
 # tab_mod_dec_Fig2D_sheep <- modelEstimates(mod_dec_Fig2D_sheep)
 tab_mod_dec_Fig2D_sheep <- report::report_table(mod_dec_Fig2D_sheep)
 
-mod_dec_Fig2D_wolf <- glmer(correct ~ condition * bpe + (condition|experiment/workerId),
+mod_dec_Fig2D_wolf <- glmer(correct ~ condition * bpe + (condition|experiment/subjectId),
                             family=binomial, data=expsQuests[expsQuests$task == "wolf",])
 # tab_mod_dec_Fig2D_wolf <- modelEstimates(mod_dec_Fig2D_wolf)
 tab_mod_dec_Fig2D_wolf <- report::report_table(mod_dec_Fig2D_wolf)
 
 
 
-mod_con_Fig2E_sheep <- lmer(confidence ~ condition * paranoia + (condition|experiment/workerId),
+mod_con_Fig2E_sheep <- lmer(confidence ~ condition * paranoia + (condition|experiment/subjectId),
                             REML=F, data=expsQuests[expsQuests$task == "sheep",])
 # tab_mod_con_Fig2E_sheep <- modelEstimates(mod_con_Fig2E_sheep)
 tab_mod_con_Fig2E_sheep <- report::report_table(mod_con_Fig2E_sheep)
 
-mod_con_Fig2E_wolf <- lmer(confidence ~ condition * paranoia + (condition|experiment/workerId),
+mod_con_Fig2E_wolf <- lmer(confidence ~ condition * paranoia + (condition|experiment/subjectId),
                            REML=F, data=expsQuests[expsQuests$task == "wolf",])
 # tab_mod_con_Fig2E_wolf <- modelEstimates(mod_con_Fig2E_wolf)
 tab_mod_con_Fig2E_wolf <- report::report_table(mod_con_Fig2E_wolf)
 
 
 
-mod_con_Fig2F_sheep <- lmer(confidence ~ condition * bpe + (condition|experiment/workerId),
+mod_con_Fig2F_sheep <- lmer(confidence ~ condition * bpe + (condition|experiment/subjectId),
                             REML=F, data=expsQuests[expsQuests$task == "sheep",])
 # tab_mod_con_Fig2F_sheep <- modelEstimates(mod_con_Fig2F_sheep)
 tab_mod_con_Fig2F_sheep <- report::report_table(mod_con_Fig2F_sheep)
 
-mod_con_Fig2F_wolf <- lmer(confidence ~ condition * bpe + (condition|experiment/workerId),
+mod_con_Fig2F_wolf <- lmer(confidence ~ condition * bpe + (condition|experiment/subjectId),
                            REML=F, data=expsQuests[expsQuests$task == "wolf",])
 # tab_mod_con_Fig2F_wolf <- modelEstimates(mod_con_Fig2F_wolf)
 tab_mod_con_Fig2F_wolf <- report::report_table(mod_con_Fig2F_wolf)
@@ -358,6 +364,32 @@ summary(lm(confidence_M~bpe*task,questsExps[,]))
 #          data=exp2Quest2); summary(m2)
 # m3<-lmer(confidence~condition*paranoia+(condition|subjectId),REML=F,
 #         data=exp2Quest2); summary(m3)
+
+
+
+# # # # # # # # # # Stats: Figure S3, Sex Analysis# # # # # # # # # # # # # ####
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+temp <- expsQuests[expsQuests$demo_sex == "Male" | expsQuests$demo_sex == "Female",]
+temp$sex <- ifelse(temp$demo_sex == "Male",0,1) 
+
+mod_ide_FigS2B_sheep <- glmer(correct ~ condition * sex + (condition|experiment/subjectId),
+                              family=binomial, data=temp[temp$task == "sheep",])
+tab_mod_ide_FigS2B_sheep <- report::report_table(mod_ide_FigS2B_sheep)
+
+mod_ide_FigS2B_wolf <- glmer(correct ~ condition * sex + (condition|experiment/subjectId),
+                            family=binomial, data=temp[temp$task == "wolf",])
+tab_mod_ide_FigS2B_wolf <- report::report_table(mod_ide_FigS2B_wolf)
+
+
+
+mod_con_FigS2C_sheep <- lmer(confidence ~ condition * sex + (condition|experiment/subjectId),
+                            REML=F, data=temp[temp$task == "sheep",])
+tab_mod_con_FigS2C_sheep <- report::report_table(mod_con_FigS2C_sheep)
+
+mod_con_FigS2C_wolf <- lmer(confidence ~ condition * sex + (condition|experiment/subjectId),
+                           REML=F, data=temp[temp$task == "wolf",])
+tab_mod_con_FigS2C_wolf <- report::report_table(mod_con_FigS2C_wolf)
 
 
 
@@ -672,36 +704,36 @@ tmc3and4teleology <- modelEstimates(mc3and4teleology)
 
 
 # combine all models
-tableS2 <- rbind(data.frame(exp="Exp. 1",mod="Paranoia",out="Detect",tmd1paranoia[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 2",mod="Paranoia",out="Detect",tmd2paranoia[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 2",mod="Teleology",out="Detect",tmd2teleology[2:4,c(1,3,4)]),
-            data.frame(exp="Exps. 1 and 2",mod="Paranoia",out="Detect",tmd1and2paranoia[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 2",mod="Paranoia",out="Confidence",tmc2paranoia[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 2",mod="Teleology",out="Confidence",tmc2teleology[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 3",mod="Task Type",out="Identification",tmd3task[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 4a",mod="Task Type",out="Identification",tmd4aTask[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 4b",mod="Task Type",out="Identification",tmd4bTask[2:4,c(1,3,4)]),
-            data.frame(exp="Exps. 3 and 4",mod="Task Type",out="Identification",tmd3and4task[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 3",mod="Task Type",out="Confidence",tmc3task[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 4a",mod="Task Type",out="Confidence",tmc4aTask[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 4b",mod="Task Type",out="Confidence",tmc4bTask[2:4,c(1,4,5)]),
-            data.frame(exp="Exps. 3 and 4",mod="Task Type",out="Confidence",tmc3and4task[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 3",mod="Paranoia",out="Identification",tmd3paranoia[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 4a",mod="Paranoia",out="Identification",tmd4aParanoia[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 4b",mod="Paranoia",out="Identification",tmd4bParanoia[2:4,c(1,3,4)]),
-            data.frame(exp="Exps. 3 and 4",mod="Paranoia",out="Identification",tmd3and4paranoia[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 3",mod="Teleology",out="Identification",tmd3teleology[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 4a",mod="Teleology",out="Identification",tmd4aTeleology[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 4b",mod="Teleology",out="Identification",tmd4bTeleology[2:4,c(1,3,4)]),
-            data.frame(exp="Exps. 3 and 4",mod="Teleology",out="Identification",tmd3and4teleology[2:4,c(1,3,4)]),
-                 data.frame(exp="Exp. 3",mod="Paranoia",out="Confidence",tmc3paranoia[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 4a",mod="Paranoia",out="Confidence",tmc4aParanoia[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 4b",mod="Paranoia",out="Confidence",tmc4bParanoia[2:4,c(1,4,5)]),
-            data.frame(exp="Exps. 3 and 4",mod="Paranoia",out="Confidence",tmc3and4paranoia[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 3",mod="Teleology",out="Confidence",tmc3teleology[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 4a",mod="Teleology",out="Confidence",tmc4aTeleology[2:4,c(1,4,5)]),
-                 data.frame(exp="Exp. 4b",mod="Teleology",out="Confidence",tmc4bTeleology[2:4,c(1,4,5)]),
-            data.frame(exp="Exps. 3 and 4",mod="Teleology",out="Confidence",tmc3and4teleology[2:4,c(1,4,5)]))
+tableS2 <- rbind(data.frame(exp="Study 1",mod="Paranoia",out="Detect",tmd1paranoia[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 2",mod="Paranoia",out="Detect",tmd2paranoia[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 2",mod="Teleology",out="Detect",tmd2teleology[2:4,c(1,3,4)]),
+            data.frame(exp="Studies 1 and 2",mod="Paranoia",out="Detect",tmd1and2paranoia[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 2",mod="Paranoia",out="Confidence",tmc2paranoia[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 2",mod="Teleology",out="Confidence",tmc2teleology[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 3",mod="Task Type",out="Identification",tmd3task[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 4a",mod="Task Type",out="Identification",tmd4aTask[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 4b",mod="Task Type",out="Identification",tmd4bTask[2:4,c(1,3,4)]),
+            data.frame(exp="Studies 3 and 4",mod="Task Type",out="Identification",tmd3and4task[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 3",mod="Task Type",out="Confidence",tmc3task[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 4a",mod="Task Type",out="Confidence",tmc4aTask[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 4b",mod="Task Type",out="Confidence",tmc4bTask[2:4,c(1,4,5)]),
+            data.frame(exp="Studies 3 and 4",mod="Task Type",out="Confidence",tmc3and4task[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 3",mod="Paranoia",out="Identification",tmd3paranoia[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 4a",mod="Paranoia",out="Identification",tmd4aParanoia[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 4b",mod="Paranoia",out="Identification",tmd4bParanoia[2:4,c(1,3,4)]),
+            data.frame(exp="Studies 3 and 4",mod="Paranoia",out="Identification",tmd3and4paranoia[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 3",mod="Teleology",out="Identification",tmd3teleology[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 4a",mod="Teleology",out="Identification",tmd4aTeleology[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 4b",mod="Teleology",out="Identification",tmd4bTeleology[2:4,c(1,3,4)]),
+            data.frame(exp="Studies 3 and 4",mod="Teleology",out="Identification",tmd3and4teleology[2:4,c(1,3,4)]),
+                 data.frame(exp="Study 3",mod="Paranoia",out="Confidence",tmc3paranoia[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 4a",mod="Paranoia",out="Confidence",tmc4aParanoia[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 4b",mod="Paranoia",out="Confidence",tmc4bParanoia[2:4,c(1,4,5)]),
+            data.frame(exp="Studies 3 and 4",mod="Paranoia",out="Confidence",tmc3and4paranoia[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 3",mod="Teleology",out="Confidence",tmc3teleology[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 4a",mod="Teleology",out="Confidence",tmc4aTeleology[2:4,c(1,4,5)]),
+                 data.frame(exp="Study 4b",mod="Teleology",out="Confidence",tmc4bTeleology[2:4,c(1,4,5)]),
+            data.frame(exp="Studies 3 and 4",mod="Teleology",out="Confidence",tmc3and4teleology[2:4,c(1,4,5)]))
 
 
 
@@ -723,12 +755,12 @@ tableS2$sig <- as.factor(ifelse(tableS2$p.value > 0.05,"",
 
 # print table S2
 if (print_figure == 1) {
-  write.csv(tableS2, "figures/tableS2.csv", row.names = F)
+  write.csv(tableS2, "figures/figureS2.csv", row.names = F)
 }
 
-# Table 2 became Figure S1
-figureS1 <- ggplot(tableS2,aes(x=exp,y=coef,size=abs(Estimate),fill=Estimate,coll=Estimate)) +
-  labs(x="Experiments",y="Mixed Models Estimates",size="Estimate",fill="Estimate",col="Estimate") + 
+# Table 2 became Figure S2
+figureS2 <- ggplot(tableS2,aes(x=exp,y=coef,size=abs(Estimate),fill=Estimate,coll=Estimate)) +
+  labs(x="Studies",y="Mixed Models Estimates",size="Estimate",fill="Estimate",col="Estimate") + 
   geom_point(shape=c(21)) +
   geom_text(aes(label=sig), size = 5) + 
   scale_size(range = c(3,12), breaks=seq(-4.2,1.8,by=1)) +
@@ -739,10 +771,10 @@ figureS1 <- ggplot(tableS2,aes(x=exp,y=coef,size=abs(Estimate),fill=Estimate,col
   facet_grid(mod~out, scales = "free", space = "free") +
   guides(size=element_blank()) +
   theme_classic() + theme(axis.text.x = element_text(angle = 30, hjust = 1))
-figureS1
+figureS2
 
 if (print_figure == 1) {
-  ggsave("figures/figureS2_PNAS.pdf", figureS1, dpi = 2400, scale = 1, units = "cm",
+  ggsave("figures/figureS2.pdf", figureS2, dpi = 2400, scale = 1, units = "cm",
          width = 13*1.618, height = 13, bg = "white")
 }
 
@@ -881,9 +913,9 @@ summary(lm(bpe ~ wolf_correct_C + sheep_correct_C + paranoia + caps_total, withi
 
 if (!require(BGGM)) {install.packages('BGGM')}; library(BGGM)
 if (!require(qgraph)) {install.packages('qgraph')}; library(qgraph)
-# fig4A
+# fig3A
 vec <- c("bpe","wolf_correct_C","sheep_correct_C","paranoia")
-# fig4C
+# fig3C
 # vec <- c("bpe","wolf_correct_M","sheep_correct_M","paranoia")
 dims <- within[,vec]# within[within$experiment == 5,vec]
 for (i in 1:ncol(dims)) {
@@ -899,18 +931,18 @@ netA <- BGGM::estimate(dims, iter = 10000, type = "mixed", mixed_type = c(0,0,0,
 summary(netA)
 sumnetA <- summary(netA)
 sel.netA <- BGGM::select(netA, cred = 0.95)
-# sel.netA$pcor_adj <- cbind(0,sel.netA$pcor_adj)
-# sel.netA$pcor_adj <- rbind(0,sel.netA$pcor_adj)
+sel.netA$pcor_adj <- cbind(0,sel.netA$pcor_adj)
+sel.netA$pcor_adj <- rbind(0,sel.netA$pcor_adj)
 nodeNames <- c("Anomalous\nPerceptions","Teleology","Wolf","Sheep","Paranoia")
-nodeNames <- c("Teleology","Wolf","Sheep","Paranoia")
+# nodeNames <- c("Teleology","Wolf","Sheep","Paranoia")
 qgraph(sel.netA$pcor_adj, labels = nodeNames, borders = T)
 qgraph(sel.netA$pcor_adj, labels = nodeNames, borders = T, #layout = "sping",
-       filetype = "png", filename = "figures/figure4A",
+       filetype = "png", filename = "figures/figure3A",
        height = 15, width = 15, normalize = F,
        node.height = 5, node.width = 5,
        esize=120*exp(-5/90)+1)#, #15*exp(-nNodes/90)+1)
 
-# fig4B
+# fig3B
 vec <- c("caps_total","bpe","wolf_correct_C","sheep_correct_C","paranoia")
 dims <- within[,vec]
 for (i in 1:ncol(dims)) {
@@ -928,7 +960,7 @@ sel.netB <- BGGM::select(netB, cred = 0.95)
 nodeNames <- c("Anomalous\nPerceptions","Teleology","Wolf","Sheep","Paranoia")
 qgraph(sel.netB$pcor_adj, labels = nodeNames, borders = T)
 qgraph(sel.netB$pcor_adj, labels = nodeNames, borders = T, #layout = "sping",
-       filetype = "png", filename = "figures/figure4B",
+       filetype = "png", filename = "figures/figure3B",
        height = 15, width = 15, normalize = F,
        node.height = 5, node.width = 5,
        esize=120*exp(-5/90)+1)#, #15*exp(-nNodes/90)+1)

@@ -200,8 +200,8 @@ meanDifference <- function(sample1, sample2, paired){
 }
 
 
-plotFigure2PNAS <- function (quest1exp1,quest2exp2,questsExps,
-                             exp1Quest1,exp2Quest2,expsQuests) {
+plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
+                         exp1Quest1,exp2Quest2,expsQuests) {
   # # # colors # # #
   paraColour <- c("#F29199","#1F5B73")
   teleColour <- c("#8EA676","#F2921D")
@@ -457,7 +457,7 @@ plotFigure2PNAS <- function (quest1exp1,quest2exp2,questsExps,
   
   p1 <- annotation_custom2(rasterGrob(wolf_img, interpolate=TRUE), xmin=0.3, xmax=1.3, ymin=0.55, ymax=1, data=temp[1,])
   p2 <- annotation_custom2(rasterGrob(sheep_img, interpolate=TRUE), xmin=0.3, xmax=1.3, ymin=0.55, ymax=1, data=temp[101,])
-  fig2C <- ggplot(temp[temp$setting=="within",], aes(x=condition2,y=correct,col=rgpts_para,shape=rgpts_para,fill=rgpts_para)) + 
+  fig2C <- ggplot(temp[,], aes(x=condition2,y=correct,col=rgpts_para,shape=rgpts_para,fill=rgpts_para)) + 
     labs(x="Condition",y="p(Correct Identification)",col="Paranoia:",shape="Paranoia:",fill="Paranoia:") +
     geom_hline(yintercept = 1/8, linetype = "dashed") +
     stat_summary(fun = "mean", aes(group=subjectId,
@@ -483,7 +483,7 @@ plotFigure2PNAS <- function (quest1exp1,quest2exp2,questsExps,
                             axis.title.x = element_blank())
   fig2C <- fig2C + p1 + p2
   # fig2C
-  fig2E <- ggplot(temp[temp$setting=="within",], aes(x=condition2,y=confidence,col=rgpts_para,
+  fig2E <- ggplot(temp[,], aes(x=condition2,y=confidence,col=rgpts_para,
                             shape=rgpts_para,fill=rgpts_para)) + 
     labs(x="Condition",y="Confidence",col="Paranoia:",shape="Paranoia:",fill="Paranoia:") +
     stat_summary(fun = "mean", aes(group=subjectId,
@@ -591,22 +591,223 @@ plotFigure2PNAS <- function (quest1exp1,quest2exp2,questsExps,
   # combine figures
   bottomleft <- annotate_figure(ggarrange(fig2C, fig2E, nrow=2,align = "hv",labels = c("C","E"),
                                           common.legend = F),
-                                top = text_grob("Experiment 3, 4a, & 4b", color = "black",face = "bold", size = 12),
+                                top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
                                 bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
   bottomright <- annotate_figure(ggarrange(fig2D, fig2F, nrow=2,align = "hv",labels = c("D","F"),
                                            common.legend = F),
-                                 top = text_grob("Experiment 3, 4a, & 4b", color = "black",face = "bold", size = 12),
+                                 top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
                                  bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
   left <- annotate_figure(ggarrange(fig2A,bottomleft,nrow=2,labels = c("A",""),
                                     heights = c(3.1,4.9),
                                     common.legend = T),
-                          top = text_grob("Experiment 1 & 2", color = "black",face = "bold", size = 12))
+                          top = text_grob("Studies 1 & 2", color = "black",face = "bold", size = 12))
   right <- annotate_figure(ggarrange(fig2B,bottomright,nrow=2,labels = c("B",""),
                                      heights = c(3.1,4.9),
                                      common.legend = T),
-                           top = text_grob("Experiment 2", color = "black",face = "bold", size = 12))
+                           top = text_grob("Study 2", color = "black",face = "bold", size = 12))
   fig2 <- ggarrange(left,right)
   return(fig2)
+}
+
+plotFigureS3 <- function (quest1exp1,quest2exp2,questsExps,
+                         exp1Quest1,exp2Quest2,expsQuests) {
+  # # # colors # # #
+  paraColour <- c("#F29199","#1F5B73")
+  teleColour <- c("#8EA676","#F2921D")
+  wolfSheep <- c("#F2B885","#262014")
+  
+  # # # # EXPERIMENT 1 and 2 # # # #
+  # figure 2A based on all the classic chase detection SDT
+  quest1exp1$confidence_M <- quest1exp1$confidence_C <- NA
+  sameCols <- c("experiment","version","demo_age","demo_sex",
+                "subjectId","survey_duration","interview_date","interview_date_full",
+                "sensitivity","response_criterion","Hit","FA","Ms","CR","hit_rate",
+                "fa_rate","correct","confidence_C","confidence_M","detection",
+                "reaction_time","paranoia")
+  questDetect <- rbind(quest1exp1[,sameCols], quest2exp2[,sameCols])
+  questDetect$sex <- ifelse(questDetect$demo_sex == "Male",0,1)
+  exp1_2_parameters <- c("hit_rate","fa_rate","sensitivity","response_criterion",
+                         "correct","detection","reaction_time","confidence_M","confidence_C")
+  # # # # Brian Scholl's lab meeting # # # #
+  # questDetect <- rbind(quest1exp1[,sameCols])
+  # exp1_2_parameters <- c("hit_rate","fa_rate","sensitivity","response_criterion",
+  #                        "correct","detection","reaction_time")
+  questDetectMelt <- reshape2::melt(questDetect, measure.vars = exp1_2_parameters)
+  questDetectMelt <- questDetectMelt[!is.na(questDetectMelt$value),]
+  
+  # significance difference
+  sig <- estimate <- means <- as.vector(rep(NA,length(exp1_2_parameters)))
+  effect_size <- matrix(NA,nrow=length(exp1_2_parameters),ncol=3)
+  for (i in 1:length(exp1_2_parameters)) {
+    temp <- questDetectMelt$value[questDetectMelt$variable == exp1_2_parameters[i]]
+    questDetectMelt$value[questDetectMelt$variable == exp1_2_parameters[i]] <- 
+      scale(temp)[1:length(temp)]
+    means[i] <- mean(scale(temp)[1:length(temp)], na.rm=T)
+    temp2 <- glm(sex~., family = "binomial",
+                 data = questDetect[,c("sex",exp1_2_parameters[i])])
+    temp3 <- report::report_table(temp2)
+    sig[i] <- temp3$p[2]
+    estimate[i] <- temp3$Coefficient[2]
+    effect_size[i,] <- unlist(temp3[2,c("Std_Coefficient","Std_Coefficient_CI_low",
+                                        "Std_Coefficient_CI_high")])
+  }
+  print <- data.frame(exp1_2_parameters,means,
+                      round(data.frame(estimate,sig,
+                                       Std_Coefficient=effect_size[,1],
+                                       Std_Coefficient_CI_low=effect_size[,2],
+                                       Std_Coefficient_CI_high=effect_size[,3]),4))
+  write.csv(print, "figures/figS3A.csv",row.names = F)
+  
+  # create data frame for significant experiment 1
+  temp4 <- data.frame(exp1_2_parameters,sig,dich=
+                        ifelse(sig<0.001,"***",#p < 0.001
+                               ifelse(sig>0.001&sig<0.01,"**",#p < 0.01
+                                      ifelse(sig>0.01&sig<0.05,"*",""))))#p < 0.05
+  questDetectMelt$sex1 <- factor(questDetectMelt$sex, levels = c("1","0"))
+  figS2A <- ggplot(questDetectMelt, aes(x=variable,y=value,col=sex1,
+                                       fill=sex1,shape=sex1)) +
+    labs(shape="Sex:",fill="Sex:",col="Sex:",
+         y = "Scaled Scores") +
+    stat_summary(fun.data = mean_se, position = position_dodge(0.2)) +
+    scale_color_manual(values = c("pink","blue"), labels = c("Female","Male")) +
+    scale_fill_manual(values = c("pink","blue"), labels = c("Female","Male")) +
+    scale_shape_manual(values = c(21,22), labels = c("Female","Male")) +
+    scale_y_continuous(breaks = c(-0.5,0,0.5)) +
+    scale_x_discrete(labels = c('hit_rate'="Hit Rate",
+                                'fa_rate'="False Alarm Rate",
+                                'sensitivity'="Sensitivity: d'",
+                                'response_criterion'="Response Criterion: C",
+                                'correct'="Correctness",
+                                'detection'="p(Detect Chase)",
+                                'reaction_time'="Decision Time",
+                                'confidence_M'="Mirror Confidence",
+                                'confidence_C'="Chase Confidence")) +
+    annotate("text",y=means, x=seq(1.2,9.2,1),label=temp4$dich,size=3.5) +
+    coord_cartesian(ylim = c(-0.6,0.6)) +
+    theme_classic() + theme(legend.position = "none",
+                            legend.background = element_blank(),
+                            axis.title.x = element_blank(),
+                            axis.text.x = element_text(angle = 30, hjust = 1))
+  # figS2A
+  # paste(round(mean(questDetect$hit_rate),2),"SD", round(sd(questDetect$hit_rate),2))
+  # paste(round(mean(questDetect$fa_rate),2),"SD", round(sd(questDetect$fa_rate),2))
+  # paste(round(mean(questDetect$sensitivity),2),"SD", round(sd(questDetect$sensitivity),2))
+  # paste(round(mean(questDetect$response_criterion),2),"SD", round(sd(questDetect$response_criterion),2))
+  # paste(round(mean(questDetect$correct),2),"SD", round(sd(questDetect$correct),2))
+  # paste(round(mean(questDetect$detection),2),"SD", round(sd(questDetect$detection),2))
+  # paste(round(mean(questDetect$reaction_time),2),"SD", round(sd(questDetect$reaction_time),2))
+  # paste(round(mean(questDetect$confidence_M,na.rm=T),2),"SD", round(sd(questDetect$confidence_M,na.rm=T),2))
+  # paste(round(mean(questDetect$confidence_C,na.rm=T),2),"SD", round(sd(questDetect$confidence_C,na.rm=T),2))
+  # meanDifference(questDetect$hit_rate[questDetect$sex==0],
+  #                questDetect$hit_rate[questDetect$sex==1],F)
+  # meanDifference(questDetect$fa_rate[questDetect$sex==0],
+  #                questDetect$fa_rate[questDetect$sex==1],F)
+  # meanDifference(questDetect$sensitivity[questDetect$sex==0],
+  #                questDetect$sensitivity[questDetect$sex==1],F)
+  # meanDifference(questDetect$response_criterion[questDetect$sex==0],
+  #                questDetect$response_criterion[questDetect$sex==1],F)
+  # meanDifference(questDetect$correct[questDetect$sex==0],
+  #                questDetect$correct[questDetect$sex==1],F)
+  # meanDifference(questDetect$detection[questDetect$sex==0],
+  #                questDetect$detection[questDetect$sex==1],F)
+  # meanDifference(questDetect$reaction_time[questDetect$sex==0],
+  #                questDetect$reaction_time[questDetect$sex==1],F)
+  # meanDifference(questDetect$confidence_M[questDetect$sex==0],
+  #                questDetect$confidence_M[questDetect$sex==1],F)
+  # meanDifference(questDetect$confidence_C[questDetect$sex==0],
+  #                questDetect$confidence_C[questDetect$sex==1],F)
+  
+  
+  
+  # condition to numeric for easy plot
+  expsQuests$condition2 <- ifelse(expsQuests$condition == "chase",2,1)
+  # expsQuests$condition2 <- ifelse(expsQuests$rgpts_para == "high",
+  #                                 expsQuests$condition2 + 0.1,
+  #           
+  
+  # side space from x margins to high low mirror and high chase
+  sideSpace <- 0.4
+  
+  # filter data base?
+  temp <- expsQuests[expsQuests$demo_sex == "Male" | expsQuests$demo_sex == "Female",]
+  temp <- temp[!is.na(temp$task),]
+  temp$task <- ifelse(temp$task == "sheep","Sheep","Wolf")
+  # temp$rgpts_para <- ifelse(temp$rgpts_para == "low","Low","High")
+  
+  figS2B <- ggplot(temp[,], aes(x=condition2,y=correct,
+                                                     col=demo_sex,shape=demo_sex,fill=demo_sex)) + 
+    labs(x="Condition",y="p(Correct Identification)",col="Sex:",shape="Sex:",fill="Sex:") +
+    geom_hline(yintercept = 1/8, linetype = "dashed") +
+    stat_summary(fun = "mean", aes(group=subjectId,
+                                   x=ifelse(rgpts_para == "high",
+                                            condition2 + 0.1,
+                                            condition2 - 0.1)), 
+                 geom = "line", alpha=0.05) +
+    stat_summary(fun = "mean", aes(group=subjectId,
+                                   x=ifelse(rgpts_para == "high",
+                                            condition2 + 0.1,
+                                            condition2 - 0.1)), 
+                 geom = "point", alpha=0.05,stroke=0) +
+    geom_smooth(method="lm", se=F, size=1.1) +
+    stat_summary(fun="mean", geom="point", size=4) +
+    scale_color_manual(values = c("pink","blue"),labels = c("Female","Male")) +
+    scale_fill_manual(values = c("pink","blue"),labels = c("Female","Male")) +
+    scale_shape_manual(values = c(21,22),labels = c("Female","Male")) +
+    scale_x_continuous(breaks = c(1,2), labels = c("Mirror","Chase"),
+                       limits = c(1-sideSpace,2+sideSpace)) +
+    scale_y_continuous(breaks = c(0,0.5,1),limits = c(0,1)) +
+    facet_grid(.~task) +
+    theme_classic() + theme(legend.position = "none",
+                            axis.title.x = element_blank())
+  # figS2B
+  figS2C <- ggplot(temp[,], aes(x=condition2,y=confidence,
+                               col=demo_sex,shape=demo_sex,fill=demo_sex)) + 
+    labs(x="Condition",y="Confidence",col="Sex:",shape="Sex:",fill="Sex:") +
+    stat_summary(fun = "mean", aes(group=subjectId,
+                                   x=ifelse(rgpts_para == "high",
+                                            condition2 + 0.1,
+                                            condition2 - 0.1)), 
+                 geom = "line", alpha=0.05) +
+    stat_summary(fun = "mean", aes(group=subjectId,
+                                   x=ifelse(rgpts_para == "high",
+                                            condition2 + 0.1,
+                                            condition2 - 0.1)), 
+                 geom = "point", alpha=0.05,stroke=0) +
+    geom_smooth(method="lm", se=F, size=1.1) +
+    stat_summary(fun="mean", geom="point", size=4) +
+    scale_color_manual(values = c("pink","blue"),labels = c("Female","Male")) +
+    scale_fill_manual(values = c("pink","blue"),labels = c("Female","Male")) +
+    scale_shape_manual(values = c(21,22),labels = c("Female","Male")) +
+    scale_x_continuous(breaks = c(1,2), labels = c("Mirror","Chase"),
+                       limits = c(1-sideSpace,2+sideSpace)) +
+    scale_y_continuous(breaks = c(1,3,5),limits = c(1,5)) +
+    facet_grid(.~task) +
+    theme_classic() + theme(legend.position = "none",
+                            axis.title.x = element_blank())
+  # figS2C
+  
+
+  
+  # combine figures
+  bottomleft <- annotate_figure(ggarrange(figS2B, figS2C, nrow=2,align = "hv",labels = c("B","C"),
+                                          common.legend = F),
+                                top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
+                                bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
+  # bottomright <- annotate_figure(ggarrange(fig2D, fig2F, nrow=2,align = "hv",labels = c("D","F"),
+  #                                          common.legend = F),
+  #                                top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
+  #                                bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
+  left <- annotate_figure(ggarrange(figS2A,bottomleft,nrow=2,labels = c("A",""),
+                                    heights = c(3.1,4.9),
+                                    common.legend = T),
+                          top = text_grob("Studies 1 & 2", color = "black",face = "bold", size = 12))
+  # right <- annotate_figure(ggarrange(fig2B,bottomright,nrow=2,labels = c("B",""),
+  #                                    heights = c(3.1,4.9),
+  #                                    common.legend = T),
+  #                          top = text_grob("Study 2", color = "black",face = "bold", size = 12))
+  # fig2 <- ggarrange(left,right)
+  
+  return(left)
 }
 
 modelEstimates <- function (mod) {
