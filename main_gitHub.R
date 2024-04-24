@@ -94,6 +94,26 @@ if (remove_invalid == 1) {
   exp1 <- exp1[exp1$valid_id == T & exp1$valid_trials ==  T,]
   exp2 <- exp2[exp2$valid_id == T & exp2$valid_trials ==  T,]
   
+  # sensitivity analysis only with good participants for study 4a
+  also_4a <- 0
+  if (also_4a == 1) {
+    exp4a$valid_id <- F
+    quests$valid_id <- ifelse(quests$experiment == 4,F,T)
+    for (i in 1:length(unique(exp4a$subjectId))) {
+      temp <- exp4a[exp4a$subjectId == unique(exp4a$subjectId)[i],]
+      temp <- temp[temp$condition=="chase",]
+      pVal <- binom.test(sum(temp$correct), nrow(temp), p = 1/8, alternative = "greater")$p.value
+      if (pVal < 0.1) {
+        exp4a$valid_id[exp4a$workerId == unique(exp4a$subjectId)[i]] <- T
+        quests$valid_id[quests$workerId == unique(exp4a$subjectId)[i]] <- T
+      }
+    }
+    # keep valid rows
+    exp4a <- exp4a[exp4a$valid_id == T,]; exp4a$valid_id <- NULL
+    quests <- quests[quests$valid_id == T,]; quests$valid_id <- NULL
+  }
+  
+  
   exp4b$valid_id <- F
   quests$valid_id <- ifelse(quests$experiment == 5,F,T)
   for (i in 1:length(unique(exp4b$subjectId))) {
@@ -232,7 +252,13 @@ ggplot(allQuest, aes(x=scale(rgpts_pers),y=scale(bpe))) +
   stat_cor(method = "spearman") +
   theme_classic()
 
+# sex is related with teleolgy or paranoia?
+questsExps$sex <- ifelse(questsExps$demo_sex=="Prefer not to say",NA,questsExps$demo_sex)
 
+ggplot(questsExps, aes(x=sex,y=paranoia)) + stat_summary()
+chisq.test(table(questsExps$sex,questsExps$paranoia))
+ggplot(questsExps, aes(x=sex,y=bpe)) + stat_summary()
+t.test(bpe~sex, questsExps)
 
 
 # # # # # # # # # # Stats: Figure 3 # # # # # # # # # # # # # # # # # # # # ####
@@ -455,6 +481,7 @@ md3taskParaSheep <- glmer(correct~condition*paranoia+(condition|subjectId),famil
                           data=expsQuests[(expsQuests$experiment==2|expsQuests$experiment==3)&
                                             expsQuests$task == "sheep",])
 tmd3taskParaSheep <- modelEstimates(md3taskParaSheep)
+
 # no third order interaction
 md3taskTele <- glmer(correct~condition*task*bpe+(condition|subjectId),family=binomial,
                      data=expsQuests[expsQuests$experiment==2|expsQuests$experiment==3,])
@@ -478,6 +505,8 @@ tmd4aTask <- modelEstimates(md4aTask)
 md4aTaskPara <- glmer(correct~condition*task*paranoia+(condition|workerId),family=binomial,
                       data=expsQuests[expsQuests$experiment==4,])
 tmd4aTaskPara <- modelEstimates(md4aTaskPara)
+
+
 md4aTaskParaWolf <- glmer(correct~condition*paranoia+(condition|workerId),family=binomial,
                           data=expsQuests[expsQuests$experiment==4 &
                                             expsQuests$task == "wolf",])
@@ -486,10 +515,12 @@ md4aTaskParaSheep <- glmer(correct~condition*paranoia+(condition|workerId),famil
                            data=expsQuests[expsQuests$experiment==4 &
                                              expsQuests$task == "sheep",])
 tmd4aTaskParaSheep <- modelEstimates(md4aTaskParaSheep)
+
 # no third order interaction
 md4aTaskTele <- glmer(correct~condition*task*bpe+(condition|workerId),family=binomial,
                       data=expsQuests[expsQuests$experiment==4,])
 tmd4aTaskTele <- modelEstimates(md4aTaskTele)
+
 md4aTaskTeleWolf <- glmer(correct~condition*bpe+(condition|workerId),family=binomial,
                           data=expsQuests[expsQuests$experiment==4 &
                                             expsQuests$task == "wolf",])
@@ -498,7 +529,7 @@ md4aTaskTeleSheep <- glmer(correct~condition*bpe+(condition|workerId),family=bin
                            data=expsQuests[expsQuests$experiment==4 &
                                              expsQuests$task == "sheep",])
 tmd4aTaskTeleSheep <- modelEstimates(md4aTaskTeleSheep)
-
+expsQuests$teleos <- as.factor(ifelse(expsQuests$bpe>median(expsQuests$bpe,na.rm=T),1,0))
 
 
 # exp. 4b - select - task (NOTE: use workerId not subjectId)
@@ -779,6 +810,78 @@ if (print_figure == 1) {
 }
 
 
+
+
+# # # # # # # # # # Sensitivity Analysis Study 4a (N=86)# # # # # # # # # # ####
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+wolf <- expsQuests[expsQuests$experiment==4 & expsQuests$task == "wolf",]
+sheep <- expsQuests[expsQuests$experiment==4 & expsQuests$task == "sheep",]
+
+
+# # # Identification # # #
+
+# Paranoia
+iden_wolf_para <- glmer(correct~condition*paranoia+(condition|workerId),family=binomial,
+                        data=wolf)
+t_iden_wolf_para <- modelEstimates(iden_wolf_para)
+iden_sheep_para <- glmer(correct~condition*paranoia+(condition|workerId),family=binomial,
+                         data=sheep)
+t_iden_sheep_para <- modelEstimates(iden_sheep_para)
+
+ggplot(expsQuests[expsQuests$experiment==4,],aes(x=condition,y=correct,col=as.factor(paranoia))) + 
+  stat_summary() + facet_grid(.~task)
+
+# Teleolgy
+iden_wolf_tele <- glmer(correct~condition*bpe+(condition|workerId),family=binomial,
+                          data=wolf)
+t_iden_wolf_tele <- modelEstimates(iden_wolf_tele)
+iden_sheep_tele <- glmer(correct~condition*bpe+(condition|workerId),family=binomial,
+                           data=sheep)
+t_iden_sheep_tele <- modelEstimates(iden_sheep_tele)
+
+expsQuests$teleos <- as.factor(ifelse(expsQuests$bpe>median(expsQuests$bpe,na.rm=T),1,0))
+ggplot(expsQuests[expsQuests$experiment==4,],aes(x=condition,y=correct,col=teleos)) + 
+  stat_summary() + facet_grid(.~task)
+expsQuests$teleos <- NULL
+
+
+# # # Confidence # # #
+
+# Paranoia
+conf_wolf_para <- lmer(confidence~condition*paranoia+(condition|workerId),REML=F,data=wolf)
+t_conf_wolf_para <- modelEstimates(conf_wolf_para)
+conf_sheep_para <- lmer(confidence~condition*paranoia+(condition|workerId),REML=F,data=sheep)
+t_conf_sheep_para <- modelEstimates(conf_sheep_para)
+
+ggplot(expsQuests[expsQuests$experiment==4,],aes(x=condition,y=confidence,col=as.factor(paranoia))) + 
+  stat_summary() + facet_grid(.~task)
+
+# Teleolgy
+conf_wolf_tele <- lmer(confidence~condition*bpe+(condition|workerId),REML=F,data=wolf)
+t_conf_wolf_tele <- modelEstimates(conf_wolf_tele)
+conf_sheep_tele <- lmer(confidence~condition*bpe+(condition|workerId),REML=F,data=sheep)
+t_conf_sheep_tele <- modelEstimates(conf_sheep_tele)
+
+expsQuests$teleos <- as.factor(ifelse(expsQuests$bpe>median(expsQuests$bpe,na.rm=T),1,0))
+ggplot(expsQuests[expsQuests$experiment==4,],aes(x=condition,y=confidence,col=teleos)) + 
+  stat_summary() + facet_grid(.~task)
+expsQuests$teleos <- NULL
+
+
+
+# # # # # # # # # # Sensitivity Analysis Sex, Paranoia, and Teleology # # # ####
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# if needed
+# # exp. 3, 4a, and 4b - select - Paranoia (NOTE: use workerId not subjectId)
+# md3and4paranoia <- glmer(correct~condition*paranoia*sex+(condition|experiment/workerId),
+#                          family=binomial, data=expsQuests[,])
+# tmd3and4paranoia <- modelEstimates(md3and4paranoia)
+# # exp. 3, 4a, and 4b - select - Teleology (NOTE: use workerId not subjectId)
+# md3and4teleology <- glmer(correct~condition*bpe*sex+(condition|experiment/workerId),
+#                           family=binomial, data=expsQuests[,])
+# tmd3and4teleology <- modelEstimates(md3and4teleology)
 
 
 
