@@ -223,6 +223,25 @@ if (print_figure == 1) {
 
 
 
+
+# # # # # # # # # # Stats# # # # # # # # # # # # # # # # # # # # # # # # # ####
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
+# relCols <- c("demo_age","demo_sex","fa_rate","bpe")
+# temp <- rbind(quest1exp1[,relCols],quest2exp2[,relCols])
+# summary(lm(fa_rate~demo_age+demo_sex+bpe,temp))
+# ggplot(temp,aes(x=demo_age,y=fa_rate,col=demo_sex)) + 
+#   geom_point(alpha=0.2) + 
+#   stat_cor(method = "spearman") +
+#   geom_smooth(method = "lm", se=F) + theme_classic()
+# summary(lm(bpe~demo_age+demo_sex,temp))
+# ggplot(temp,aes(x=demo_age,y=bpe,col=demo_sex)) + 
+#   geom_point(alpha=0.2) + 
+#   stat_cor(method = "spearman") +
+#   geom_smooth(method = "lm", se=F) + theme_classic()
+
+
+
 # # # # # # # # # # Stats# # # # # # # # # # # # # # # # # # # # # # # # # ####
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
