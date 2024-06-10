@@ -200,7 +200,7 @@ meanDifference <- function(sample1, sample2, paired){
 }
 
 
-plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
+plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
                          exp1Quest1,exp2Quest2,expsQuests) {
   # # # colors # # #
   paraColour <- c("#F29199","#1F5B73")
@@ -261,7 +261,7 @@ plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
                                        Std_Coefficient=effect_size[,1],
                                        Std_Coefficient_CI_low=effect_size[,2],
                                        Std_Coefficient_CI_high=effect_size[,3]),4))
-  write.csv(print, "figures/fig2A.csv",row.names = F)
+  write.csv(print, "figures/fig4A.csv",row.names = F)
   # paste(round(mean(questDetect$hit_rate),2),"SD", round(sd(questDetect$hit_rate),2))
   # paste(round(mean(questDetect$fa_rate),2),"SD", round(sd(questDetect$fa_rate),2))
   # paste(round(mean(questDetect$sensitivity),2),"SD", round(sd(questDetect$sensitivity),2))
@@ -380,7 +380,7 @@ plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
                                        Std_Coefficient=effect_size[,1],
                                        Std_Coefficient_CI_low=effect_size[,2],
                                        Std_Coefficient_CI_high=effect_size[,3]),4))
-  write.csv(print, "figures/fig2B.csv",row.names = F)
+  write.csv(print, "figures/fig4B.csv",row.names = F)
   # shapiro.test(quest2exp2$bpe)
   # shapiro.test(quest2exp2$hit_rate)
   # shapiro.test(quest2exp2$fa_rate)
@@ -563,7 +563,6 @@ plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
                             shape=bpe_high,fill=bpe_high)) + 
     labs(x="Condition",y="Confidence",col="Teleology:",
          shape="Teleology:",fill="Teleology:") +
-    geom_hline(yintercept = 1/8, linetype = "dashed") +
     stat_summary(fun = "mean", aes(group=subjectId,
                                    x=ifelse(bpe_high == "High",
                                             condition2 + 0.1,
@@ -581,7 +580,7 @@ plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
     scale_shape_manual(values = c(24,25)) +
     scale_x_continuous(breaks = c(1,2), labels = c("Mirror","Chase"),
                        limits = c(1-sideSpace,2+sideSpace)) +
-    scale_y_continuous(breaks = c(1,3,5),limits = c(1,5)) +
+    scale_y_continuous(breaks = c(1,3,5), limits = c(1,5)) +
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
@@ -605,11 +604,11 @@ plotFigure2 <- function (quest1exp1,quest2exp2,questsExps,
                                      heights = c(3.1,4.9),
                                      common.legend = T),
                            top = text_grob("Study 2", color = "black",face = "bold", size = 12))
-  fig2 <- ggarrange(left,right)
-  return(fig2)
+  fig4 <- ggarrange(left,right)
+  return(fig4)
 }
 
-plotFigureS3 <- function (quest1exp1,quest2exp2,questsExps,
+plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
                          exp1Quest1,exp2Quest2,expsQuests) {
   # # # colors # # #
   paraColour <- c("#F29199","#1F5B73")
@@ -656,7 +655,7 @@ plotFigureS3 <- function (quest1exp1,quest2exp2,questsExps,
                                        Std_Coefficient=effect_size[,1],
                                        Std_Coefficient_CI_low=effect_size[,2],
                                        Std_Coefficient_CI_high=effect_size[,3]),4))
-  write.csv(print, "figures/figS3A.csv",row.names = F)
+  write.csv(print, "figures/figS2A.csv",row.names = F)
   
   # create data frame for significant experiment 1
   temp4 <- data.frame(exp1_2_parameters,sig,dich=
