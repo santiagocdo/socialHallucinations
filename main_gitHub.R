@@ -227,9 +227,9 @@ if (print_figure == 1) {
 # paranoia as binary
 exp1Quest1$paranoia <- ifelse(exp1Quest1$rgpts_para=="high",1,0)
 exp2Quest2$paranoia <- ifelse(exp2Quest2$rgpts_para=="high",1,0)
-# exp2Quest2$bpe_high <- ifelse(exp2Quest2$bpe<median(exp2Quest2$bpe),0,1)
+exp2Quest2$bpe_high <- ifelse(exp2Quest2$bpe<median(exp2Quest2$bpe,na.rm=T),0,1)
 expsQuests$paranoia <- ifelse(expsQuests$rgpts_para=="high",1,0) 
-# expsQuests$bpe_high <- ifelse(expsQuests$bpe<=median(expsQuests$bpe,na.rm=T),0,1)
+expsQuests$bpe_high <- ifelse(expsQuests$bpe<=median(expsQuests$bpe,na.rm=T),0,1)
 
 
 # combine both exp1 and exp2
@@ -244,22 +244,22 @@ sameCols <- c("experiment","version","demo_age","demo_sex",
 allQuest <- rbind(quest2exp2[,sameCols],questsExps[,sameCols])
 
 # teleology and paranoia are correlated
-cor.test(rank(allQuest$rgpts_pers), rank(allQuest$bpe))
+cor.test(allQuest$rgpts_pers, allQuest$bpe, method = "spearman")
 ggplot(allQuest, aes(x=scale(rgpts_pers),y=scale(bpe))) + 
   labs(x="Persecution",y="Teleolgy") +
   geom_point(alpha = 0.2) +
   geom_smooth(method = "lm",col="black") +
-  stat_cor() +
+  stat_cor(method = "spearman") +
   theme_classic()
 
 # sex is related with teleology or paranoia?
 questsExps$sex <- ifelse(questsExps$demo_sex=="Prefer not to say",NA,questsExps$demo_sex)
 
-ggplot(questsExps[!is.na(questsExps$sex),], aes(x=sex,y=paranoia)) + stat_summary()
+ggplot(questsExps[,], aes(x=sex,y=paranoia)) + stat_summary()
 # sex different than paranoia
 chisq.test(table(questsExps$sex,questsExps$paranoia))
 
-ggplot(questsExps, aes(x=sex,y=bpe)) + stat_summary()
+ggplot(questsExps[!is.na(questsExps$sex),], aes(x=sex,y=bpe)) + stat_summary()
 # sex different BPE
 t.test(bpe~sex, questsExps[!is.na(questsExps$sex),])
 
@@ -286,38 +286,10 @@ mod_dec_Fig4D_sheep <- glmer(correct ~ condition * bpe + (condition|experiment/s
 tab_mod_dec_Fig4D_sheep <- report::report_table(mod_dec_Fig4D_sheep)
 
 
-
-# communications psychology reviewers
-# mod_dec_Fig4D_sheep2 <- glmer(correct ~ condition * bpe * confidence + (condition|experiment/subjectId),
-#                              family=binomial, data=expsQuests[expsQuests$task == "sheep",])
-# summary(mod_dec_Fig4D_sheep2)
-# mod_dec_Fig4D_sheep3 <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
-#                                  family=binomial, data=expsQuests[expsQuests$task == "sheep" &
-#                                                                     expsQuests$condition == "mirror",])
-# summary(mod_dec_Fig4D_sheep3)
-# mod_dec_Fig4D_sheep4 <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
-#                               family=binomial, data=expsQuests[expsQuests$task == "sheep" &
-#                                                                  expsQuests$condition == "chase",])
-# summary(mod_dec_Fig4D_sheep4)
-
 mod_dec_Fig4D_wolf <- glmer(correct ~ condition * bpe + (condition|experiment/subjectId),
                             family=binomial, data=expsQuests[expsQuests$task == "wolf",])
 # tab_mod_dec_Fig4D_wolf <- modelEstimates(mod_dec_Fig4D_wolf)
-tab_mod_dec_Fig4D_wolf <- report::report_table(mod_dec_Fig4D_sheep)
-
-# communications psychology reviewers
-# mod_dec_Fig4D_wolf2 <- glmer(correct ~ condition * bpe * confidence + (condition|experiment/subjectId),
-#                               family=binomial, data=expsQuests[expsQuests$task == "wolf",])
-# summary(mod_dec_Fig4D_wolf2)
-# mod_dec_Fig4D_wolf3 <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
-#                               family=binomial, data=expsQuests[expsQuests$task == "wolf" &
-#                                                                  expsQuests$condition == "mirror",])
-# summary(mod_dec_Fig4D_wolf3)
-# mod_dec_Fig4D_wolf4 <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
-#                              family=binomial, data=expsQuests[expsQuests$task == "wolf" &
-#                                                                 expsQuests$condition == "chase",])
-# summary(mod_dec_Fig4D_wolf4)
-
+tab_mod_dec_Fig4D_wolf <- report::report_table(mod_dec_Fig4D_wolf)
 
 
 mod_con_Fig4E_sheep <- lmer(confidence ~ condition * paranoia + (condition|experiment/subjectId),
@@ -325,28 +297,21 @@ mod_con_Fig4E_sheep <- lmer(confidence ~ condition * paranoia + (condition|exper
 # tab_mod_con_Fig4E_sheep <- modelEstimates(mod_con_Fig4E_sheep)
 tab_mod_con_Fig4E_sheep <- report::report_table(mod_con_Fig4E_sheep)
 
-# communications psychology reviewers
-# mod_con_Fig4E_sheep2 <- lmer(confidence ~ condition * rgpts_pers + (condition|experiment/subjectId),
-#                             REML=F, data=expsQuests[expsQuests$task == "sheep",])
-# summary(mod_con_Fig4E_sheep2)
-mod_con_Fig4E_sheep3 <- lmer(confidence ~ paranoia + (1|experiment/subjectId),
-                            REML=F, data=expsQuests[expsQuests$task == "sheep" |
-                                                      expsQuests$condition == "chase",])
-summary(mod_con_Fig4E_sheep3)
-
 mod_con_Fig4E_wolf <- lmer(confidence ~ condition * paranoia + (condition|experiment/subjectId),
                            REML=F, data=expsQuests[expsQuests$task == "wolf",])
 # tab_mod_con_Fig4E_wolf <- modelEstimates(mod_con_Fig4E_wolf)
 tab_mod_con_Fig4E_wolf <- report::report_table(mod_con_Fig4E_wolf)
 
-# communications psychology reviewers
-# mod_con_Fig4E_wolf2 <- lmer(confidence ~ condition * rgpts_pers + (condition|experiment/subjectId),
-#                            REML=F, data=expsQuests[expsQuests$task == "wolf",])
-# summary(mod_con_Fig4E_wolf2)
-mod_con_Fig4E_wolf3 <- lmer(confidence ~ paranoia + (1|experiment/subjectId),
-                            REML=F, data=expsQuests[expsQuests$task == "wolf" |
-                                                      expsQuests$condition == "chase",])
-summary(mod_con_Fig4E_wolf3)
+
+mod_con_Fig4F_sheep <- lmer(confidence ~ condition * bpe + (condition|experiment/subjectId),
+                            REML=F, data=expsQuests[expsQuests$task == "sheep",])
+# tab_mod_con_Fig4F_sheep <- modelEstimates(mod_con_Fig4F_sheep)
+tab_mod_con_Fig4F_sheep <- report::report_table(mod_con_Fig4F_sheep)
+
+mod_con_Fig4F_wolf <- lmer(confidence ~ condition * bpe + (condition|experiment/subjectId),
+                           REML=F, data=expsQuests[expsQuests$task == "wolf",])
+# tab_mod_con_Fig4F_wolf <- modelEstimates(mod_con_Fig4F_wolf)
+tab_mod_con_Fig4F_wolf <- report::report_table(mod_con_Fig4F_wolf)
 
 
 
@@ -356,67 +321,64 @@ summary(mod_con_Fig4E_wolf3)
 # # # # # # # # # # Communications Psychology # # # # # # # # # # # # # # # ####
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
-# Sensitivity Analysis
+
+# Exploratory analyses: Identification and Confidence
 mod_dec_con_par_chase <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
                               family=binomial, data=expsQuests[expsQuests$condition == "chase",])
 summary(mod_dec_con_par_chase)
+mod_dec_con_par_mirror <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
+                               family=binomial, data=expsQuests[expsQuests$condition == "mirror",])
+summary(mod_dec_con_par_mirror)
+ggplot(expsQuests[!is.na(expsQuests$bpe_high),], aes(x=confidence,y=correct,col=as.factor(bpe_high))) +
+  geom_smooth(method = "lm") + facet_grid(task~condition)
 mod_dec_con_tel_chase <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
                               family=binomial, data=expsQuests[expsQuests$condition == "chase",])
 summary(mod_dec_con_tel_chase)
+mod_dec_con_tel_mirror <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
+                               family=binomial, data=expsQuests[expsQuests$condition == "mirror",])
+summary(mod_dec_con_tel_mirror)
+ggplot(expsQuests[!is.na(expsQuests$paranoia),], aes(x=confidence,y=correct,col=as.factor(paranoia))) +
+  geom_smooth(method = "lm") + facet_grid(task~condition)
 
-# Sensitivity Analysis 2
+
+
+
+# Sensitivity Analysis 2 (paranoia but with persecution as continuous)
 mod_dec_Fig4C_sheep2 <- glmer(correct ~ condition * rgpts_pers + (condition|experiment/subjectId),
                               family=binomial, data=expsQuests[expsQuests$task == "sheep",])
 summary(mod_dec_Fig4C_sheep2)
 mod_dec_Fig4C_wolf2 <- glmer(correct ~ condition * rgpts_pers + (condition|experiment/subjectId),
                              family=binomial, data=expsQuests[expsQuests$task == "wolf",])
 summary(mod_dec_Fig4C_wolf2)
-mod_dec_Fig4C_sheep5 <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
-                              family=binomial, data=expsQuests[expsQuests$task == "sheep" &
-                                                                 expsQuests$condition=="chase",])
-summary(mod_dec_Fig4C_sheep5)
-mod_dec_Fig4C_wolf5 <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
-                             family=binomial, data=expsQuests[expsQuests$task == "wolf" &
-                                                                expsQuests$condition=="chase",])
-summary(mod_dec_Fig4C_wolf5)
+mod_con_Fig4E_sheep2 <- lmer(confidence ~ condition * rgpts_pers + (condition|experiment/subjectId),
+                             REML=F, data=expsQuests[expsQuests$task == "sheep",])
+summary(mod_con_Fig4E_sheep2)
+mod_con_Fig4E_wolf2 <- lmer(confidence ~ condition * rgpts_pers + (condition|experiment/subjectId),
+                            REML=F, data=expsQuests[expsQuests$task == "wolf",])
+summary(mod_con_Fig4E_wolf2)
 
 
-# communications psychology reviewers
+
+# Sensitivity Analysis: wide-format predicting paranoia and teleogly
+# paranoia
 m <- glm(paranoia~(correct_C+correct_M+confidence_C+confidence_M) ,
          family = binomial,questsExps[,])
 summary(m)
 tm <- report::report_table(m)
-write.csv(tm,"figures/sensitivityAnalysis1.1.csv",row.names = F)
-
-# m <- glm(paranoia~(correct_C+correct_M+confidence_C+confidence_M) ,
-#          family = binomial,questsExps[questsExps$task=="sheep",])
-# summary(m)
-# m <- glm(paranoia~(correct_C+correct_M+confidence_C+confidence_M) ,
-#          family = binomial,questsExps[questsExps$task=="wolf",])
-# summary(m)
+if (print_figure) {
+  write.csv(tm,"figures/sensitivityAnalysis1.1.csv",row.names = F)
+}
+# teleology
 m <- lm(bpe~(correct_C+correct_M+confidence_C+confidence_M),questsExps[,])
 summary(m)
 tm <- report::report_table(m)
-write.csv(tm,"figures/sensitivityAnalysis1.2.csv",row.names = F)
-# m <- lm(bpe~(correct_C+correct_M+confidence_C+confidence_M),
-#         questsExps[questsExps$task=="sheep",])
-# summary(m)
-# m <- lm(bpe~(correct_C+correct_M+confidence_C+confidence_M),
-#         questsExps[questsExps$task=="wolf",])
-# summary(m)
+if (print_figure) {
+  write.csv(tm,"figures/sensitivityAnalysis1.2.csv",row.names = F)
+}
 
 
 
-summary(lm(correct_C~paranoia,questsExps[,]))
-summary(lm(correct_C~bpe,questsExps[,]))
-summary(lm(correct_C~paranoia+bpe,questsExps[,]))
-summary(lm(correct_C~paranoia*bpe*task,questsExps[,]))
-step(lm(correct_C~paranoia*bpe,questsExps[,]))
-summary(lm(confidence_M~paranoia,questsExps[,]))
-summary(lm(confidence_M~bpe,questsExps[,]))
-summary(lm(confidence_M~paranoia+bpe,questsExps[,]))
-summary(lm(confidence_M~paranoia*bpe*task,questsExps[,]))
-step(lm(confidence_M~paranoia*bpe,questsExps[,]))
+
 
 
 # discussion: "This could have reflected relatively low statistical power, however, 
@@ -429,20 +391,27 @@ summary(lm(confidence_M~paranoia*task,questsExps[,]))
 summary(lm(confidence_M~rgpts_pers*task,questsExps[,]))
 summary(lm(confidence_M~bpe*task,questsExps[,]))
 
+summary(lm(correct_C~paranoia,questsExps[,]))
+summary(lm(correct_C~bpe,questsExps[,]))
+summary(lm(correct_C~paranoia+bpe,questsExps[,]))
+summary(lm(correct_C~paranoia*bpe*task,questsExps[,]))
+step(lm(correct_C~paranoia*bpe,questsExps[,]))
+summary(lm(confidence_M~paranoia,questsExps[,]))
+summary(lm(confidence_M~bpe,questsExps[,]))
+summary(lm(confidence_M~paranoia+bpe,questsExps[,]))
+summary(lm(confidence_M~paranoia*bpe*task,questsExps[,]))
+step(lm(confidence_M~paranoia*bpe,questsExps[,]))
+
 # summary(glm(paranoia~fa_rate,family=binomial,quest2exp2[,]))
 # summary(glm(paranoia~fa_rate,family=binomial,quest1exp1[,]))
 # summary(lm(bpe~fa_rate,quest2exp2[,]))
 # summary(lm(bpe~fa_rate,quest2exp2[,]))
-# 
-# m1<-glmer(choice~condition*paranoia+(condition|subjectId),family=binomial,
-#          data=exp2Quest2); summary(m1)
-# m2<-glmer(choice~condition*bpe+(condition|subjectId),family=binomial,
-#          data=exp2Quest2); summary(m2)
-# m3<-lmer(confidence~condition*paranoia+(condition|subjectId),REML=F,
-#         data=exp2Quest2); summary(m3)
 
 
 
+# # # # # # # # # # Sample Size Calculation - copy from old script# # # # # ####
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
+# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # sample size was with the last group of Study 3 (detect-sheep)
 summary(lm(confidence_M~paranoia+bpe,questsExps[questsExps$version=="detect-sheep",]))
 summary(lm(confidence_C~paranoia+bpe,questsExps[,]))
@@ -1109,7 +1078,7 @@ for (i in 1:length(temp)) {
 wolf <- wolf[wolf$remove != T,]; wolf$remove <- NULL
 sheep <- sheep[sheep$remove != T,]; sheep$remove <- NULL
 
-# ssame order
+# same order
 wolf <- wolf[order(wolf$workerId),]
 sheep <- sheep[order(sheep$workerId),]
 
@@ -1135,15 +1104,18 @@ within$difPerBpe <- scale(within$rgpts_pers)[1:nrow(within)] - scale(within$bpe)
 # performance difference
 within$difCorChaSheepWolf <- within$sheep_correct_C - within$wolf_correct_C
 
-
+# corelation between differences
 corel <- cor.test(within$difCorChaSheepWolf,within$difPerBpe, method = "spearman")
 report::report_table(corel)
 
+# differences between persecution and bpe against 0
 t.test(within$difCorChaSheepWolf-within$difPerBpe, mu = 0, alternative = "two.sided")
 
+# difference in correct identification between sheep and wolf predicted by paranoia and BPE
 anova(lm(difCorChaSheepWolf~paranoia*bpe,within))
-
+# same but with paranoia
 anova(lm(difCorChaSheepWolf~paranoia,within))
+
 ggplot(within, aes(x=paranoia,y=difCorChaSheepWolf)) + 
   geom_point() + geom_smooth(method = "lm") +
   stat_cor(method = "spearman")
@@ -1169,15 +1141,16 @@ figureS2
 ggsave("figures/figureS2.png", figureS2, dpi = 1200, scale = 1.1, units = "cm",
        width = 8, height = 8, bg = "white")
 
-
+# status for figure S2
 cor.test(within$difPerBpe,within$difCorChaSheepWolf,method = "spearman")
 cor.test(rank(within$difPerBpe),rank(within$difCorChaSheepWolf))
+# normal?
 shapiro.test(within$difPerBpe)
 shapiro.test(within$difCorChaSheepWolf)
 
 
 
-# # # # # # # # # # Figure 4# # # # # # # # # # # # # # # # # # # # # # # # ####
+# # # # # # # # # # Figure 5 BGGM # # # # # # # # # # # # # # # # # # # # # ####
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 shapiro.test(within$caps_total)
@@ -1187,21 +1160,14 @@ shapiro.test(within$wolf_correct_C)
 shapiro.test(within$sheep_correct_C)
 
 # communication psychology
-cor.test(rank(within$caps_total),rank(within$rgpts_pers))
-cor.test(rank(within$caps_total),within$bpe)
-cor.test(rank(within$caps_total),rank(within$wolf_correct_C))
-cor.test(rank(within$caps_total),rank(within$sheep_correct_C))
-cor.test(rank(within$caps_total),rank(within$wolf_confidence_M))
-cor.test(rank(within$caps_total),rank(within$sheep_confidence_M))
+cor.test(within$caps_total, within$rgpts_pers, method = "spearman")
+cor.test(within$caps_total, within$bpe)
+cor.test(within$caps_total, within$wolf_correct_C, method = "spearman")
+cor.test(within$caps_total, within$sheep_correct_C, method = "spearman")
+cor.test(within$caps_total, within$wolf_confidence_M, method = "spearman")
+cor.test(within$caps_total, within$sheep_confidence_M, method = "spearman")
 
-# extra CAPS correlations
-cor.test(within$caps_total,within$rgpts_pers, method = "spearman")
-cor.test(within$caps_total,within$bpe,method = "spearman")
-cor.test(within$caps_total,within$wolf_correct_C,method = "spearman")
-cor.test(within$caps_total,within$sheep_correct_C,method = "spearman")
-cor.test(within$caps_total,within$wolf_confidence_M,method = "spearman")
-cor.test(within$caps_total,within$sheep_confidence_M,method = "spearman")
-
+# exploratory models
 summary(glm(paranoia ~ sheep_correct_C, binomial, within))
 summary(glm(paranoia ~ wolf_correct_C, binomial, within))
 summary(glm(paranoia ~ sheep_correct_C + wolf_correct_C, binomial, within))
@@ -1215,6 +1181,7 @@ summary(lm(bpe ~ wolf_correct_C + sheep_correct_C + paranoia + caps_total, withi
 
 
 
+# Bayesian Gaussian Graphical Models
 if (!require(BGGM)) {install.packages('BGGM')}; library(BGGM)
 if (!require(qgraph)) {install.packages('qgraph')}; library(qgraph)
 # performance chase 
@@ -1394,7 +1361,7 @@ est4b_conf <- select(est4b_conf, cred = 0.95)
 est4_conf <- select(est4_conf, cred = 0.95)
 
 qgraph(est4a_corr$pcor_adj, labels = colnames(dims4a_corr), borders = T)
-qgraph(est4a_corr$pcor_adj, labels = colnames(dims4b_corr), borders = T)
+qgraph(est4b_corr$pcor_adj, labels = colnames(dims4b_corr), borders = T)
 qgraph(est4_corr$pcor_adj, labels = colnames(dims4_corr), borders = T)
 qgraph(est4a_conf$pcor_adj, labels = colnames(dims4a_conf), borders = T)
 qgraph(est4b_conf$pcor_adj, labels = colnames(dims4b_conf), borders = T)

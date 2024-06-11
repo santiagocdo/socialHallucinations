@@ -200,7 +200,7 @@ meanDifference <- function(sample1, sample2, paired){
 }
 
 
-plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
+plotFigure3 <- function (quest1exp1,quest2exp2,questsExps,
                          exp1Quest1,exp2Quest2,expsQuests) {
   # # # colors # # #
   paraColour <- c("#F29199","#1F5B73")
@@ -296,7 +296,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
                                ifelse(sig>0.001&sig<0.01,"**",#p < 0.01
                                       ifelse(sig>0.01&sig<0.05,"*",""))))#p < 0.05
   questDetectMelt$paranoia1 <- factor(questDetectMelt$paranoia, levels = c("1","0"))
-  fig2A <- ggplot(questDetectMelt, aes(x=variable,y=value,col=paranoia1,
+  fig3A <- ggplot(questDetectMelt, aes(x=variable,y=value,col=paranoia1,
                                        fill=paranoia1,shape=paranoia1)) +
     labs(shape="Paranoia:",fill="Paranoia:",col="Paranoia:",
          y = "Scaled Scores") +
@@ -324,7 +324,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
     annotation_raster(chase_img,
                       ymin = 0.18,ymax = 0.6,
                       xmin = 2, xmax = 3.7)
-  # fig2A
+  # fig3A
   # brian1 <- ggplot(questDetectMelt, aes(x=variable,y=value,col=paranoia1,
   #                                     fill=paranoia1,shape=paranoia1)) +
   #   labs(shape="Paranoia:",fill="Paranoia:",col="Paranoia:",
@@ -380,7 +380,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
                                        Std_Coefficient=effect_size[,1],
                                        Std_Coefficient_CI_low=effect_size[,2],
                                        Std_Coefficient_CI_high=effect_size[,3]),4))
-  write.csv(print, "figures/fig4B.csv",row.names = F)
+  write.csv(print, "figures/fig3B.csv",row.names = F)
   # shapiro.test(quest2exp2$bpe)
   # shapiro.test(quest2exp2$hit_rate)
   # shapiro.test(quest2exp2$fa_rate)
@@ -409,7 +409,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
   quest2exp2melt$bpe1 <- factor(ifelse(quest2exp2melt$bpe<median(quest2exp2melt$bpe),"0","1"),
                                 levels = c("1","0"))
   teleolgy <- quest2exp2melt
-  fig2B <- ggplot(quest2exp2melt, aes(x=variable,y=value,col=bpe1,
+  fig3B <- ggplot(quest2exp2melt, aes(x=variable,y=value,col=bpe1,
                                       fill=bpe1,shape=bpe1)) +
     labs(shape="Teleology:",fill="Teleology:",col="Teleology:",
          y = "Scaled Scores") +
@@ -437,7 +437,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
     annotation_raster(chase_img, 
                       ymin = 0.18,ymax = 0.6,#ymin = 0.6*(1/3)*0.9, ymax = 0.6, 
                       xmin = 0.4, xmax = 2.1)#,xmin = 2*0.2*0.9, xmax = 2)
-  # fig2B
+  # fig3B
 
   
   
@@ -457,7 +457,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
   
   p1 <- annotation_custom2(rasterGrob(wolf_img, interpolate=TRUE), xmin=0.3, xmax=1.3, ymin=0.55, ymax=1, data=temp[1,])
   p2 <- annotation_custom2(rasterGrob(sheep_img, interpolate=TRUE), xmin=0.3, xmax=1.3, ymin=0.55, ymax=1, data=temp[101,])
-  fig2C <- ggplot(temp[,], aes(x=condition2,y=correct,col=rgpts_para,shape=rgpts_para,fill=rgpts_para)) + 
+  fig3C <- ggplot(temp[,], aes(x=condition2,y=correct,col=rgpts_para,shape=rgpts_para,fill=rgpts_para)) + 
     labs(x="Condition",y="p(Correct Identification)",col="Paranoia:",shape="Paranoia:",fill="Paranoia:") +
     geom_hline(yintercept = 1/8, linetype = "dashed") +
     stat_summary(fun = "mean", aes(group=subjectId,
@@ -481,9 +481,9 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
-  fig2C <- fig2C + p1 + p2
-  # fig2C
-  fig2E <- ggplot(temp[,], aes(x=condition2,y=confidence,col=rgpts_para,
+  fig3C <- fig3C + p1 + p2
+  # fig3C
+  fig3E <- ggplot(temp[,], aes(x=condition2,y=confidence,col=rgpts_para,
                             shape=rgpts_para,fill=rgpts_para)) + 
     labs(x="Condition",y="Confidence",col="Paranoia:",shape="Paranoia:",fill="Paranoia:") +
     stat_summary(fun = "mean", aes(group=subjectId,
@@ -507,7 +507,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
-  # fig2E
+  # fig3E
   
   
   
@@ -530,7 +530,7 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
   
   p1 <- annotation_custom2(rasterGrob(wolf_img, interpolate=TRUE), xmin=0.3, xmax=1.3, ymin=0.55, ymax=1, data=temp[1,])
   p2 <- annotation_custom2(rasterGrob(sheep_img, interpolate=TRUE), xmin=0.3, xmax=1.3, ymin=0.55, ymax=1, data=temp[101,])
-  fig2D <- ggplot(temp, aes(x=condition2,y=correct,col=bpe_high,
+  fig3D <- ggplot(temp, aes(x=condition2,y=correct,col=bpe_high,
                             shape=bpe_high,fill=bpe_high)) + 
     labs(x="Condition",y="p(Correct Identification)",col="Teleology:",
          shape="Teleology:",fill="Teleology:") +
@@ -556,10 +556,10 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
-  fig2D <- fig2D  + p1 + p2
-  # fig2D
+  fig3D <- fig3D  + p1 + p2
+  # fig3D
   
-  fig2F <- ggplot(temp, aes(x=condition2,y=confidence,col=bpe_high,
+  fig3F <- ggplot(temp, aes(x=condition2,y=confidence,col=bpe_high,
                             shape=bpe_high,fill=bpe_high)) + 
     labs(x="Condition",y="Confidence",col="Teleology:",
          shape="Teleology:",fill="Teleology:") +
@@ -584,28 +584,28 @@ plotFigure4 <- function (quest1exp1,quest2exp2,questsExps,
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
-  # fig2F
+  # fig3F
   
 
   # combine figures
-  bottomleft <- annotate_figure(ggarrange(fig2C, fig2E, nrow=2,align = "hv",labels = c("C","E"),
+  bottomleft <- annotate_figure(ggarrange(fig3C, fig3E, nrow=2,align = "hv",labels = c("C","E"),
                                           common.legend = F),
                                 top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
                                 bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
-  bottomright <- annotate_figure(ggarrange(fig2D, fig2F, nrow=2,align = "hv",labels = c("D","F"),
+  bottomright <- annotate_figure(ggarrange(fig3D, fig3F, nrow=2,align = "hv",labels = c("D","F"),
                                            common.legend = F),
                                  top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
                                  bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
-  left <- annotate_figure(ggarrange(fig2A,bottomleft,nrow=2,labels = c("A",""),
+  left <- annotate_figure(ggarrange(fig3A,bottomleft,nrow=2,labels = c("A",""),
                                     heights = c(3.1,4.9),
                                     common.legend = T),
                           top = text_grob("Studies 1 & 2", color = "black",face = "bold", size = 12))
-  right <- annotate_figure(ggarrange(fig2B,bottomright,nrow=2,labels = c("B",""),
+  right <- annotate_figure(ggarrange(fig3B,bottomright,nrow=2,labels = c("B",""),
                                      heights = c(3.1,4.9),
                                      common.legend = T),
                            top = text_grob("Study 2", color = "black",face = "bold", size = 12))
-  fig4 <- ggarrange(left,right)
-  return(fig4)
+  fig3 <- ggarrange(left,right)
+  return(fig3)
 }
 
 plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
@@ -655,7 +655,7 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
                                        Std_Coefficient=effect_size[,1],
                                        Std_Coefficient_CI_low=effect_size[,2],
                                        Std_Coefficient_CI_high=effect_size[,3]),4))
-  write.csv(print, "figures/figS2A.csv",row.names = F)
+  write.csv(print, "figures/figS1A.csv",row.names = F)
   
   # create data frame for significant experiment 1
   temp4 <- data.frame(exp1_2_parameters,sig,dich=
@@ -663,7 +663,7 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
                                ifelse(sig>0.001&sig<0.01,"**",#p < 0.01
                                       ifelse(sig>0.01&sig<0.05,"*",""))))#p < 0.05
   questDetectMelt$sex1 <- factor(questDetectMelt$sex, levels = c("1","0"))
-  figS2A <- ggplot(questDetectMelt, aes(x=variable,y=value,col=sex1,
+  figS1A <- ggplot(questDetectMelt, aes(x=variable,y=value,col=sex1,
                                        fill=sex1,shape=sex1)) +
     labs(shape="Sex:",fill="Sex:",col="Sex:",
          y = "Scaled Scores") +
@@ -687,7 +687,8 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
                             legend.background = element_blank(),
                             axis.title.x = element_blank(),
                             axis.text.x = element_text(angle = 30, hjust = 1))
-  # figS2A
+  # figS1A
+  
   # paste(round(mean(questDetect$hit_rate),2),"SD", round(sd(questDetect$hit_rate),2))
   # paste(round(mean(questDetect$fa_rate),2),"SD", round(sd(questDetect$fa_rate),2))
   # paste(round(mean(questDetect$sensitivity),2),"SD", round(sd(questDetect$sensitivity),2))
@@ -733,7 +734,7 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
   temp$task <- ifelse(temp$task == "sheep","Sheep","Wolf")
   # temp$rgpts_para <- ifelse(temp$rgpts_para == "low","Low","High")
   
-  figS2B <- ggplot(temp[,], aes(x=condition2,y=correct,
+  figS1B <- ggplot(temp[,], aes(x=condition2,y=correct,
                                                      col=demo_sex,shape=demo_sex,fill=demo_sex)) + 
     labs(x="Condition",y="p(Correct Identification)",col="Sex:",shape="Sex:",fill="Sex:") +
     geom_hline(yintercept = 1/8, linetype = "dashed") +
@@ -758,8 +759,8 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
-  # figS2B
-  figS2C <- ggplot(temp[,], aes(x=condition2,y=confidence,
+  # figS1B
+  figS1C <- ggplot(temp[,], aes(x=condition2,y=confidence,
                                col=demo_sex,shape=demo_sex,fill=demo_sex)) + 
     labs(x="Condition",y="Confidence",col="Sex:",shape="Sex:",fill="Sex:") +
     stat_summary(fun = "mean", aes(group=subjectId,
@@ -783,12 +784,12 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
     facet_grid(.~task) +
     theme_classic() + theme(legend.position = "none",
                             axis.title.x = element_blank())
-  # figS2C
+  # figS1C
   
 
   
   # combine figures
-  bottomleft <- annotate_figure(ggarrange(figS2B, figS2C, nrow=2,align = "hv",labels = c("B","C"),
+  bottomleft <- annotate_figure(ggarrange(figS1B, figS1C, nrow=2,align = "hv",labels = c("B","C"),
                                           common.legend = F),
                                 top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
                                 bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
@@ -796,7 +797,7 @@ plotFigureS1 <- function (quest1exp1,quest2exp2,questsExps,
   #                                          common.legend = F),
   #                                top = text_grob("Studies 3, 4a, & 4b", color = "black",face = "bold", size = 12),
   #                                bottom = text_grob("Conditions", color = "black",face = "bold", size = 12))
-  left <- annotate_figure(ggarrange(figS2A,bottomleft,nrow=2,labels = c("A",""),
+  left <- annotate_figure(ggarrange(figS1A,bottomleft,nrow=2,labels = c("A",""),
                                     heights = c(3.1,4.9),
                                     common.legend = T),
                           top = text_grob("Studies 1 & 2", color = "black",face = "bold", size = 12))
