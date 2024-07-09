@@ -201,7 +201,7 @@ expsQuests <- addQuestionnaires(to=exps,from=quests,scores)
 # pHigh <- "#F29199"; pLow <- "#1F5B73"
 # tHigh <- "#F2921D"; tLow <- "#8EA676";
 
-fig4 <- plotFigure4(quest1exp1,quest2exp2,
+fig3 <- plotFigure3(quest1exp1,quest2exp2,
                     questsExps,exp1Quest1,
                     exp2Quest2,expsQuests)
 
@@ -213,7 +213,7 @@ figS1 <- plotFigureS1(quest1exp1,quest2exp2,
 
 # print figures
 if (print_figure == 1) {
-  ggsave("figures/figure4.pdf", fig4, dpi = 2400, scale = 1.1, units = "cm",
+  ggsave("figures/figure3.pdf", fig3, dpi = 2400, scale = 1.1, units = "cm",
          width = 20, height = 20, bg = "white")
   ggsave("figures/figureS1.pdf", figS1, dpi = 2400, scale = 1.1, units = "cm",
          width = 12, height = 20, bg = "white")
@@ -986,7 +986,7 @@ t_iden_sheep_para <- modelEstimates(iden_sheep_para)
 ggplot(expsQuests[expsQuests$experiment==4,],aes(x=condition,y=correct,col=as.factor(paranoia))) + 
   stat_summary() + facet_grid(.~task)
 
-# Teleolgy
+# Teleology
 iden_wolf_tele <- glmer(correct~condition*bpe+(condition|workerId),family=binomial,
                           data=wolf)
 t_iden_wolf_tele <- modelEstimates(iden_wolf_tele)
@@ -1021,22 +1021,6 @@ expsQuests$teleos <- as.factor(ifelse(expsQuests$bpe>median(expsQuests$bpe,na.rm
 ggplot(expsQuests[expsQuests$experiment==4,],aes(x=condition,y=confidence,col=teleos)) + 
   stat_summary() + facet_grid(.~task)
 expsQuests$teleos <- NULL
-
-
-
-# # # # # # # # # # Sensitivity Analysis Sex, Paranoia, and Teleology # # # ####
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
-# if needed
-# # exp. 3, 4a, and 4b - select - Paranoia (NOTE: use workerId not subjectId)
-# md3and4paranoia <- glmer(correct~condition*paranoia*sex+(condition|experiment/workerId),
-#                          family=binomial, data=expsQuests[,])
-# tmd3and4paranoia <- modelEstimates(md3and4paranoia)
-# # exp. 3, 4a, and 4b - select - Teleology (NOTE: use workerId not subjectId)
-# md3and4teleology <- glmer(correct~condition*bpe*sex+(condition|experiment/workerId),
-#                           family=binomial, data=expsQuests[,])
-# tmd3and4teleology <- modelEstimates(md3and4teleology)
-
 
 
 
@@ -1104,7 +1088,7 @@ within$difPerBpe <- scale(within$rgpts_pers)[1:nrow(within)] - scale(within$bpe)
 # performance difference
 within$difCorChaSheepWolf <- within$sheep_correct_C - within$wolf_correct_C
 
-# corelation between differences
+# correlation between differences
 corel <- cor.test(within$difCorChaSheepWolf,within$difPerBpe, method = "spearman")
 report::report_table(corel)
 
@@ -1138,8 +1122,12 @@ figureS2 <- ggplot(within, aes(x=difPerBpe,y=difCorChaSheepWolf)) +
   theme_classic()
 figureS2
 # print figure S2
-ggsave("figures/figureS2.png", figureS2, dpi = 1200, scale = 1.1, units = "cm",
-       width = 8, height = 8, bg = "white")
+if (print_figure == 1) {
+  ggsave("figures/figureS2.png", figureS2, dpi = 1200, scale = 1.1, units = "cm",
+         width = 8, height = 8, bg = "white")
+}
+
+
 
 # status for figure S2
 cor.test(within$difPerBpe,within$difCorChaSheepWolf,method = "spearman")
