@@ -458,7 +458,7 @@ tab_mod_con_FigS2C_wolf <- report::report_table(mod_con_FigS2C_wolf)
 
 
 
-# # # # # # # # # # Stats: Figure 3 # # # # # # # # # # # # # # # # # # # # ####
+# # # # # # # # # # Stats: Figure 4 # # # # # # # # # # # # # # # # # # # # ####
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # 
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
@@ -918,8 +918,19 @@ if (print_figure == 1) {
   write.csv(tableS1, "figures/tableS1.csv", row.names = F)
 }
 
-# Table S2 became Figure 2
-figure3 <- ggplot(tableS1, aes(x=exp,y=coef,size=abs(Std_Coefficient),fill=Std_Coefficient)) +
+if (!exists("tableS1")) {
+  tableS1 <- read.csv("figures/tableS1.csv")
+}
+
+# order panels
+tableS1$mod <- factor(tableS1$mod, levels = c("Task Type","Paranoia","Teleology"))
+tableS1$out <- factor(tableS1$out, levels = c("Detect","Identification","Confidence"))
+tableS1$exp <- factor(tableS1$exp, levels = c("Study 1","Study 2","Studies 1 and 2",
+                                              "Study 3","Study 4a", "Study 4b",
+                                              "Studies 3 and 4"))
+
+# Table S1 became Figure 4
+figure4 <- ggplot(tableS1, aes(x=exp,y=coef,size=abs(Std_Coefficient),fill=Std_Coefficient)) +
   labs(x="Studies", y="Mixed Models Estimates",
        size="Effect Size", fill="Effect Size") + 
   geom_point(shape=c(21)) +
@@ -932,7 +943,7 @@ figure3 <- ggplot(tableS1, aes(x=exp,y=coef,size=abs(Std_Coefficient),fill=Std_C
   facet_grid(mod ~ out, scales = "free", space = "free") +
   guides(size=element_blank()) +
   theme_classic() + theme(axis.text.x = element_text(angle = 30, hjust = 1))
-figure3
+figure4
 
 # figureS2A <- ggplot(tableS2[,], aes(x=coef,y=Std_Coefficient, fill=out, col=out)) +
 #   labs(y="Effect Size", x="Mixed Models Estimates") + 
@@ -959,7 +970,7 @@ figure3
 # figureS2
 
 if (print_figure == 1) {
-  ggsave("figures/figure3.pdf", figure3, dpi = 2400, scale = 1, units = "cm",
+  ggsave("figures/figure4.pdf", figure4, dpi = 2400, scale = 1, units = "cm",
          width = 13*1.618, height = 13, bg = "white")
 }
 
