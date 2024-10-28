@@ -1,5 +1,5 @@
 # script created by Santiago Castiello de Obeso 
-# date: 05/06/2024
+# date: 10/09/2024
 # scripts found in socialHallucinations repository: https://github.com/santiagocdo/socialHallucinations
 
 
@@ -241,7 +241,7 @@ exp1and2 <- rbind(exp1Quest1[,cols],exp2Quest2[,cols])
 sameCols <- c("experiment","version","demo_age","demo_sex",
               "subjectId","bpe","paranoia","rgpts_pers")
 
-allQuest <- rbind(quest2exp2[,sameCols],questsExps[,sameCols])
+allQuest <- rbind(quest1exp1[,sameCols],quest2exp2[,sameCols],questsExps[,sameCols])
 
 # teleology and paranoia are correlated
 cor.test(allQuest$rgpts_pers, allQuest$bpe, method = "spearman")
@@ -262,6 +262,8 @@ chisq.test(table(questsExps$sex,questsExps$paranoia))
 ggplot(questsExps[!is.na(questsExps$sex),], aes(x=sex,y=bpe)) + stat_summary()
 # sex different BPE
 t.test(bpe~sex, questsExps[!is.na(questsExps$sex),])
+
+shapiro.test(allQuest$bpe)
 
 
 
@@ -323,17 +325,37 @@ tab_mod_con_Fig4F_wolf <- report::report_table(mod_con_Fig4F_wolf)
 # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
 
 # Exploratory analyses: Identification and Confidence
-mod_dec_con_par_chase <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
+mod_dec_con_par_chase <- glmer(correct ~ paranoia * confidence * task + (1|experiment/subjectId),
                               family=binomial, data=expsQuests[expsQuests$condition == "chase",])
 summary(mod_dec_con_par_chase)
+mod_dec_con_par_chase_wolf <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
+                               family=binomial, data=expsQuests[expsQuests$condition == "chase" &
+                                                                  expsQuests$task == "wolf",])
+summary(mod_dec_con_par_chase_wolf)
+mod_dec_con_par_chase_sheep <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
+                               family=binomial, data=expsQuests[expsQuests$condition == "chase" &
+                                                                  expsQuests$task == "sheep",])
+summary(mod_dec_con_par_chase_sheep)
+
 mod_dec_con_par_mirror <- glmer(correct ~ paranoia * confidence + (1|experiment/subjectId),
                                family=binomial, data=expsQuests[expsQuests$condition == "mirror",])
 summary(mod_dec_con_par_mirror)
 ggplot(expsQuests[!is.na(expsQuests$bpe_high),], aes(x=confidence,y=correct,col=as.factor(bpe_high))) +
   geom_smooth(method = "lm") + facet_grid(task~condition)
-mod_dec_con_tel_chase <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
+
+
+
+mod_dec_con_tel_chase <- glmer(correct ~ bpe * confidence * task + (1|experiment/subjectId),
                               family=binomial, data=expsQuests[expsQuests$condition == "chase",])
 summary(mod_dec_con_tel_chase)
+mod_dec_con_tel_chase_wolf <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
+                               family=binomial, data=expsQuests[expsQuests$condition == "chase" &
+                                                                  expsQuests$task == "wolf",])
+summary(mod_dec_con_tel_chase_wolf)
+mod_dec_con_tel_chase_sheep <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
+                               family=binomial, data=expsQuests[expsQuests$condition == "chase" &
+                                                                  expsQuests$task == "sheep",])
+summary(mod_dec_con_tel_chase_sheep)
 mod_dec_con_tel_mirror <- glmer(correct ~ bpe * confidence + (1|experiment/subjectId),
                                family=binomial, data=expsQuests[expsQuests$condition == "mirror",])
 summary(mod_dec_con_tel_mirror)
@@ -359,7 +381,7 @@ summary(mod_con_Fig4E_wolf2)
 
 
 
-# Sensitivity Analysis: wide-format predicting paranoia and teleogly
+# Sensitivity Analysis: wide-format predicting paranoia and teleology
 # paranoia
 m <- glm(paranoia~(correct_C+correct_M+confidence_C+confidence_M) ,
          family = binomial,questsExps[,])
@@ -369,6 +391,7 @@ if (print_figure) {
   write.csv(tm,"figures/sensitivityAnalysis1.1.csv",row.names = F)
 }
 # teleology
+shapiro.test(questsExps$bpe)
 m <- lm(bpe~(correct_C+correct_M+confidence_C+confidence_M),questsExps[,])
 summary(m)
 tm <- report::report_table(m)
