@@ -1,5 +1,5 @@
 # script created by Santiago Castiello de Obeso 
-# date: 10/09/2024
+# date: 28/10/2024
 # scripts found in socialHallucinations repository: https://github.com/santiagocdo/socialHallucinations
 
 
@@ -261,7 +261,7 @@ chisq.test(table(questsExps$sex,questsExps$paranoia))
 
 ggplot(questsExps[!is.na(questsExps$sex),], aes(x=sex,y=bpe)) + stat_summary()
 # sex different BPE
-t.test(bpe~sex, questsExps[!is.na(questsExps$sex),])
+report::report_table(t.test(bpe~sex, questsExps[!is.na(questsExps$sex),]))
 
 shapiro.test(allQuest$bpe)
 
@@ -936,7 +936,7 @@ tableS1$sig <- ifelse(tableS1$sig == "*" & tableS1$Std_Coefficient > 0, "+",
                #                        ifelse(tableS1$p.value < 0.01 & tableS1$p.value > 0.001,
                #                               "**","***"))))
 
-# print table S2
+# print table S1
 if (print_figure == 1) {
   write.csv(tableS1, "figures/tableS1.csv", row.names = F)
 }

@@ -300,6 +300,7 @@ plotFigure3 <- function (quest1exp1,quest2exp2,questsExps,
                                        fill=paranoia1,shape=paranoia1)) +
     labs(shape="Paranoia:",fill="Paranoia:",col="Paranoia:",
          y = "Scaled Scores") +
+    # geom_boxplot() +
     stat_summary(fun.data = mean_se, position = position_dodge(0.2)) +
     scale_color_manual(values = paraColour, labels = c("High","Low")) +
     scale_fill_manual(values = paraColour, labels = c("High","Low")) +
